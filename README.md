@@ -15,5 +15,6 @@
 - With the Add to Inventory option, the app propmts for input on which SKU to add and then how many to add. Once done, the app returns a notice on the new inventory count.
 - With the Add New Product option, the app prompts for input on SKU#, product name, department, list price and inventory count. Once done, it returns the notice that the new product has been added.
 ## Demo video
--https://youtu.be/v92rv33cVjQ
+<a href="https://youtu.be/v92rv33cVjQ" target="_blank">https://youtu.be/v92rv33cVjQ</a>
+
 
