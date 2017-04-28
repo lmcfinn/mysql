@@ -12,6 +12,7 @@ connection.connect(function(err) {
   // console.log("connected as id " + connection.threadId);
 });
 
+//Create questions for manager and run different functions basaed on input
 function runQuery() {
 	inquirer.prompt({
 		name: "options",
@@ -41,47 +42,58 @@ function runQuery() {
 				addProduct();
 				break;
 		}
-
 	});
 };
 
+//Select data from all columns from products table
 function viewProducts() {
 	connection.query("SELECT * FROM products", function(err, res) {
 		if(err) {
 			throw err
 		};
-
 		for (var i =0; i < res.length; i++) {
-			console.log("Product ID: " + res[i].item_id + " | Product Name: " + res[i].product_name 
+			console.log("SKU: " + res[i].item_id + " | Product: " + res[i].product_name 
 				+ " | Price: " + "$" + res[i].price + " | Inventory: " + res[i].stock_quantity)
 		}
-		connection.end();
+		// connection.end();
+		runQuery();
 	});
 };
 
+//Show items with stock_quantity lower than 5
 function viewLowInventory() {
 	connection.query("SELECT * FROM products", function(err, res) {
 		// console.log(res)
 		if(err) {
 			throw err
 		};
+		
+		var enoughStocked = true;
+
 		for (var j = 0; j < res.length; j++) {
-
 			if (res[j].stock_quantity < 5) {
-
-				console.log("Product ID: " + res[j].item_id + " | Product Name: " + res[j].product_name 
+				enoughStocked = false
+				console.log("SKU: " + res[j].item_id + " | Product: " + res[j].product_name 
 				+ " | Inventory: " + res[j].stock_quantity)
-			}
+			} 
 		};
-    	connection.end();
+
+		if (enoughStocked === true){
+			console.log("All products have sufficient stock.")
+		}
+    	// connection.end();
+    	runQuery();
 	});
 };
 
+//Add input to the stock_quantity column
 function addInventory() {
+
+	//Ask for input
 	inquirer.prompt([{
 		name: "product_id",
 		type: "input",
-		message: "Please enter the product ID of the item you would like to add:",
+		message: "Please enter the SKU you would like to add:",
 		validate: function(value) {
 	      if (isNaN(value) === false) {
 	        return true;
@@ -110,6 +122,7 @@ function addInventory() {
 			};
 
 			var currentStock = res[0].stock_quantity;
+			//Turn input into an integer
 			var updatedQuantity = currentStock + parseInt(answer.quantity)
 			// console.log(updatedQuantity)
 
@@ -123,17 +136,18 @@ function addInventory() {
 				};
 				console.log("New inventory: " + updatedQuantity)
 			});
-			connection.end();	
-		});
+			connection.end();
+			// runQuery();	
+		});	
 	});
 };
 
+//Add new product
 function addProduct() {
-
 	inquirer.prompt([{
 		name: "id",
 		type: "input",
-		message: "Enter product id:",
+		message: "Enter SKU number:",
 		validate: function(value) {
 	      	if (isNaN(value) === false) {
 	        	return true;
@@ -171,6 +185,7 @@ function addProduct() {
 	}]).then(function(answer) {
 		// console.log(answer)
 
+		//Turn input into numbers
 		var newProductId = parseInt(answer.id);
 		// console.log("id " + newProductId);
 		var newProductPrice = parseFloat(answer.listPrice);
@@ -178,6 +193,7 @@ function addProduct() {
 		var newProductQuantity = parseInt(answer.stock);
 		// console.log("stock " + newProductQuantity)
 
+		//Inser new data into products table
 		connection.query("INSERT INTO products SET ?", {
 			item_id: newProductId,
 			product_name: answer.productName,
@@ -191,10 +207,44 @@ function addProduct() {
 			console.log("New product added!")
 		});
 		connection.end();
+		// runQuery();
 	});
+
 };
 
 runQuery();
+
+
+
+//NOT part of the app - admin 
+
+//UPDATE
+// connection.query("UPDATE products SET ? WHERE ?", [{
+// 	  stock_quantity: 4
+// 	}, {
+// 	  item_id: 8
+// 	}], function(err, res) {
+// 		if (err) {
+// 			throw err
+// 		};
+// 		console.log("done")
+// });
+
+//DELETE
+// connection.query("DELETE FROM products WHERE ?", {
+//   item_id: 15
+// }, function(err, res) {
+// 	if (err) {
+// 		throw err
+// 	};
+// 	console.log("done")
+// });
+
+
+
+
+
+
 
 
 
